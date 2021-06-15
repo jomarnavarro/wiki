@@ -35,3 +35,13 @@ def get_entry(title):
         return f.read().decode("utf-8")
     except FileNotFoundError:
         return None
+
+def article_exists(title):
+    """
+    Returns True if a title already exists in the wiki, False otherwise.
+    """
+    entries = list_entries()
+    for entry in entries:
+        if entry.lower() == title.lower():
+            return True
+    return False

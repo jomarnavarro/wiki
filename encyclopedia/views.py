@@ -1,7 +1,12 @@
 from django.shortcuts import render
-
+from django import forms
 from . import util
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
+class NewArticleForm(forms.Form):
+    title = forms.CharField(label="Title: ")
+    article = forms.CharField(label="Article", widget=forms.Textarea)
 
 def index(request):
     return render(request, "encyclopedia/index.html", {
@@ -47,3 +52,25 @@ def search(request):
         return render(request, "encyclopedia/error.html", {
             "error": f"There are no entries for '{title}'"
         })
+
+def newpage(request):
+    if request.method == "POST":
+        form = NewArticleForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            article = form.cleaned_data['article']
+            if util.article_exists(title):
+                return render(request, "encyclopedia/newpage.html", {
+                    "form": form,
+                    "error": f"There is already an article for '{title}'"
+                })                  
+            util.save_entry(title, article)
+            return HttpResponseRedirect(reverse('index'))
+        else:
+            return render(request, "encyclopedia/newpage.html", {
+                "form": form,
+                "error": "Please review field content validity."
+            })  
+    return render(request, "encyclopedia/newpage.html", {
+        "form": NewArticleForm()
+    })
