@@ -9,7 +9,7 @@ Edit Article
     {% if error %}
     <p style="color: red;">{{ error }}</p>
     {% endif %}
-    <form action="/edit/{{ title }}" method="post">
+    <form action="{% url 'edit' title %}" method="post">
         {% csrf_token %}
         {{ form }}
         <input type="submit">

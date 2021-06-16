@@ -10,32 +10,49 @@ class NewArticleForm(forms.Form):
     article = forms.CharField(label="Article", widget=forms.Textarea)
 
 def index(request):
+    """
+    Displays the main page with all the wiki entries.
+    """
+    # it renders the index page with a dictionary including all the entries
+    # from the entries folder.
     return render(request, "encyclopedia/index.html", {
         "entries": util.list_entries()
     })
 
 def title(request, title):
-    print(title)
+    """
+    Displays the article by the title if it exists.
+    Otherwise, it shows an error page.
+    """
+    # attempts to grab the entry by title
     entry = util.get_entry(title)
     if not entry:
         return render(request, "encyclopedia/error.html", {
             "error": f"{title} entry does not exist."
         })
+    
+    # this renders the entry.html template by including the title and the entry text.
     return render(request, "encyclopedia/entry.html", {
         "title": title,
         "entry": entry
     })
 
 def search(request):
+    """
+    It searches the page for an article by title.  It it matches an entry, it 
+    displays it directly.  If the title matches more than one title, it shows
+    all the entries by links.  Otherwise, if no matches are found, an error page
+    is displayed.
+    """
     # gets the q value from field
     title = request.GET['q']
     # tries to get entry for q.  if so, it loads that page.
     entry = util.get_entry(title)
+    # if the entry is found, it redirects to the /wiki/title page.
+    # it uses the HttpResponseRedirect object which uses the reverse function to
+    # search for the wiki page by name, with arguments as the title.
     if entry:
-        return render(request, "encyclopedia/entry.html", {
-            "title": title,
-            "entry": entry
-        })
+        return HttpResponseRedirect(reverse('title', args=(title,)))
     # it tries in the rest of the entries for partial matches.
     entries = util.list_entries()
     matches = []
@@ -66,6 +83,8 @@ def newpage(request):
                     "error": f"There is already an article for '{title}'"
                 })                  
             util.save_entry(title, article)
+            # after it saves the entry, it redirects to the index page
+            # it doesn't use args because the 'index' route does not use one.
             return HttpResponseRedirect(reverse('index'))
         else:
             return render(request, "encyclopedia/newpage.html", {
@@ -110,4 +129,5 @@ def edit(request, title):
         })
 
 def random_page(request):
-    return HttpResponseRedirect(f"/wiki/{random.choice(util.list_entries())}")
+    title = random.choice(util.list_entries())
+    return HttpResponseRedirect(reverse('title', args=(title,)))

@@ -9,6 +9,6 @@
 
     <p>{{ entry }}</p>
 
-    <a href="/edit/{{ title }}">Edit this article</a>
+    <a href="{% url 'edit' title %}">Edit this article</a>
 
 {% endblock %}
