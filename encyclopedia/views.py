@@ -74,3 +74,36 @@ def newpage(request):
     return render(request, "encyclopedia/newpage.html", {
         "form": NewArticleForm()
     })
+
+def edit(request, title):
+    print(f"TITLE is {title}")
+    if request.method == 'POST':
+        form = NewArticleForm(request.POST)
+        if form.is_valid():
+            title_form = form.cleaned_data['title']
+            article_form = form.cleaned_data['article']
+            if title_form == title:
+                util.save_entry(title, article_form)
+                return render(request, "encyclopedia/index.html", {
+                    "entries": util.list_entries()
+                })
+            else:
+                return render(request, "encyclopedia/edit.html", {
+                    "form": form,
+                    "error": f"You can't change the article name."
+                })
+    if util.article_exists(title):
+        form = NewArticleForm(initial = {
+            "title": title,
+            "article": util.get_entry(title)
+        })
+        # print(form)
+        return render(request, "encyclopedia/edit.html", {
+            "form": form,
+            "title": title #f"There is no article for '{title}'"
+        })
+
+    else:
+        return render(request, "encyclopedia/error.html", {
+            "error": f"There is no article for '{title}'"
+        })
