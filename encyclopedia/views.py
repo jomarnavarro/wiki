@@ -3,6 +3,7 @@ from django import forms
 from . import util
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+import random
 
 class NewArticleForm(forms.Form):
     title = forms.CharField(label="Title: ")
@@ -107,3 +108,6 @@ def edit(request, title):
         return render(request, "encyclopedia/error.html", {
             "error": f"There is no article for '{title}'"
         })
+
+def random_page(request):
+    return HttpResponseRedirect(f"/wiki/{random.choice(util.list_entries())}")
