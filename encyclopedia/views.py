@@ -4,6 +4,9 @@ from . import util
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 import random
+from markdown2 import Markdown
+
+markdowner = Markdown()
 
 class NewArticleForm(forms.Form):
     title = forms.CharField(label="Title: ")
@@ -34,7 +37,7 @@ def title(request, title):
     # this renders the entry.html template by including the title and the entry text.
     return render(request, "encyclopedia/entry.html", {
         "title": title,
-        "entry": entry
+        "entry": markdowner.convert(entry)
     })
 
 def search(request):
